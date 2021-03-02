@@ -1,12 +1,14 @@
 import React from 'react'
 import { Helmet } from "react-helmet"
+import ReactHtmlParser from 'react-html-parser';
+
 
 const SEO = ({ page }) => {
 
 	let title = page.title
 	const description = page.seo.metaDescription;
 
-	if (title.indexOf("Agility") === -1) title += " - Agility CMS";
+	//if (title.indexOf("Agility") === -1) title += " - Agility CMS";
 
 	let canonicalUrl = page.seo.canonicalUrl;
 	if (canonicalUrl && canonicalUrl.lastIndexOf("/") !== canonicalUrl.length - 1) {
@@ -14,12 +16,18 @@ const SEO = ({ page }) => {
 		canonicalUrl = `${canonicalUrl}/`;
 	}
 
+	let metaRawHtml = null
+	if (page.seo.metaHTML) {
+		metaRawHtml = ReactHtmlParser(page.seo.metaHTML)
+	}
+
+
 	return (
 		<Helmet>
 			<meta charset="utf-8" />
 			<title>{title}</title>
 			<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-			<meta http-equiv="X-UA-Compatible" content="IE=edge"/> 
+			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
 			<meta property="og:site_name" content="Agility CMS" />
 			<meta property="twitter:title" content={title} />
@@ -30,6 +38,8 @@ const SEO = ({ page }) => {
 			<meta name="twitter:description" content={description} />
 
 			<meta name="ahrefs-site-verification" content="c196da25d25defd7b56d5883e72e28eb7d6be33aeea6f20dfa8a4eee4ce0c427" />
+
+			{ metaRawHtml }
 
 			{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 			{page.seo.twitterCard && <meta property="twitter:card" content={page.seo.twitterCard} />}
@@ -155,10 +165,10 @@ const SEO = ({ page }) => {
 			<meta name="msapplication-wide310x150logo" content="https://static.agilitycms.com/favicon-web/mstile-310x150.png" />
 			<meta name="msapplication-square310x310logo" content="https://static.agilitycms.com/favicon-web/mstile-310x310.png" />
 
-			<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Mulisemibold.woff2" />
-			<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Muliextrabold.woff2" />
-			<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Mulibold.woff2" />
-			<link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Muliregular.woff2" />
+			<link rel="preload" as="font" type="font/woff2" crossOrigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Mulisemibold.woff2" />
+			<link rel="preload" as="font" type="font/woff2" crossOrigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Muliextrabold.woff2" />
+			<link rel="preload" as="font" type="font/woff2" crossOrigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Mulibold.woff2" />
+			<link rel="preload" as="font" type="font/woff2" crossOrigin="anonymous" href="https://static.agilitycms.com/layout/fonts/Muliregular.woff2" />
 
 			<link rel="stylesheet" href="/fonts.css" />
 

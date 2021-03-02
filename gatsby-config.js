@@ -7,7 +7,7 @@ require("dotenv").config({
 const agilityConfig = {
 	guid: process.env.AGILITY_GUID,
 	apiKey: process.env.AGILITY_API_KEY,
-	isPreview: process.env.AGILITY_API_ISPREVIEW
+	isPreview: process.env.AGILITY_API_ISPREVIEW === "true"
 }
 
 /**
@@ -17,6 +17,10 @@ const agilityConfig = {
  */
 
 module.exports = {
+	flags: {
+		DEV_SSR: false,
+		FAST_REFRESH: false
+	},
 	siteMetadata: {
 		title: "Agility CMS",
 		siteUrl: `https://agilitycms.com`,
@@ -176,7 +180,7 @@ module.exports = {
 			  ],
 			},
 			},
-			
+
 
 	],
 }

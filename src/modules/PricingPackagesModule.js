@@ -3,7 +3,7 @@ import { graphql, StaticQuery } from 'gatsby'
 import Spacing from './Spacing'
 import HelperFunc from '../global/javascript/Helpers.js'
 import './PricingPackagesModule.scss'
-export default props => (
+const ModuleWithQuery = props => (
 	<StaticQuery
 		query={graphql`
 		query getPricingItems {
@@ -70,25 +70,40 @@ export default props => (
 			/**pricing header */
 			const pricingPackages = props.item.customFields.pricingPackages.referencename
 			const listPricingPackages = queryData.allAgilityPricingPackages.nodes
-			.filter(obj => { return obj.properties.referenceName === pricingPackages})
-			// order
-			for(let i = 0; i < listPricingPackages.length - 1; i++) {
-				if (listPricingPackages[i].properties.itemOrder > listPricingPackages[i + 1].properties.itemOrder) {
-					const tam = listPricingPackages[i]
-					listPricingPackages[i] = listPricingPackages[i + 1]
-					listPricingPackages[i + 1] = tam
-				}
-			}
+				.filter(obj => { return obj.properties.referenceName === pricingPackages})
+				.sort((a, b) => a.properties.itemOrder - b.properties.itemOrder)
+
+			// // order
+			// for(let i = 0; i < listPricingPackages.length - 1; i++) {
+			// 	if (listPricingPackages[i].properties.itemOrder > listPricingPackages[i + 1].properties.itemOrder) {
+			// 		const tam = listPricingPackages[i]
+			// 		listPricingPackages[i] = listPricingPackages[i + 1]
+			// 		listPricingPackages[i + 1] = tam
+			// 	}
+			// }
 			/**end */
 			/**row value */
 			const packageFeatureValues = props.item.customFields.packageFeatureValues.referencename
-			const listPackageFeatureValues = queryData.allAgilityPackageFeatureValues.nodes
-			.filter(obj => { return obj.properties.referenceName === packageFeatureValues})
+			const listPackageFeatureValues = queryData.allAgilityPackageFeatureValues.nodes.filter(obj => {
+				return obj.properties.referenceName === packageFeatureValues
+			})
+
 			const packageFeatureLabels = props.item.customFields.packageFeatureLabels.referencename
-			const listPackageFeaturePrimary = queryData.allAgilityPackageFeatures.nodes
-			.filter(obj => { return obj.properties.referenceName === packageFeatureLabels && obj.customFields.isPrimary && obj.customFields.isPrimary=== 'true'})
-			const listPackageFeatureMore = queryData.allAgilityPackageFeatures.nodes
-			.filter(obj => { return obj.properties.referenceName === packageFeatureLabels && !obj.customFields.isPrimary})
+
+			const listPackageFeaturePrimary = queryData.allAgilityPackageFeatures.nodes.filter(obj => {
+				return obj.properties.referenceName === packageFeatureLabels
+						&& obj.customFields.isPrimary !== undefined
+						&& obj.customFields.isPrimary !== null
+						&& obj.customFields.isPrimary=== 'true'
+			}).sort((a, b) => a.properties.itemOrder - b.properties.itemOrder)
+
+			const listPackageFeatureMore = queryData.allAgilityPackageFeatures.nodes.filter(obj => {
+				return obj.properties.referenceName === packageFeatureLabels
+				&& ( obj.customFields.isPrimary === undefined
+					|| obj.customFields.isPrimary === null
+					|| obj.customFields.isPrimary === 'false')
+			}).sort((a, b) => a.properties.itemOrder - b.properties.itemOrder)
+
 			/**end */
 			const viewModel = {
 				item: props.item,
@@ -153,11 +168,12 @@ const RowItem = ({props, maxCol}) => {
 	const rowFields = props.customFields
 	const title = rowFields.title
 	const CheckIsBoolean = ({textVal, checkedVal}) => {
+
 		if ((textVal && checkedVal) || (textVal && !checkedVal) ) {
-			return <span>{textVal}</span>
+			return <span dangerouslySetInnerHTML={{__html:textVal}}></span>
 		}
 		if (!textVal && checkedVal) {
-			return  (checkedVal === 'true' ? <span className="icomoon icon-check"></span> : <span>-</span>);
+			return  (checkedVal === 'true' ? <span className="icomoon icon-check"></span> : <span className="icomoon icon-uncheck"></span>);
 		}
 	}
 	const rowFeatures = props.features.map((el, idx) => {
@@ -171,14 +187,14 @@ const RowItem = ({props, maxCol}) => {
 		}
 		return (
 			<td key={idx} className={`type-${classColor[Number(idx) % 4]}`}>
-				<div><span>-</span></div>
+				<div><span className="icomoon icon-uncheck"></span></div>
 			</td>
 		)
 	})
 	return (
 		<tr>
 			{ title &&
-				<td>{ title }</td>
+				<td dangerouslySetInnerHTML={{__html: title}}></td>
 			}
 			{ rowFeatures && rowFeatures.length > 0 &&
 				rowFeatures
@@ -291,16 +307,21 @@ const PriceItemMobile = ({priceType, primaryFeaturesTitle, secondaryFeaturesTitl
 	return (
 		<div className={`price-item-mb item-${classColor[priceType % 4]} ` + (!showMore ? '' : 'is-show-more') }>
 			<HeaderColumn priceType={priceType} title={titleMB} label={costLabelMB} btnCta={btnCtaMB} btnCtaLabel={btnCtaMBLabel} value={costMB} saleCost={saleCost} hasPopular={isMostPopularMB} />
-			<div className="show-hide-table-mb" ref={showHideEle}>
+			<div>
 				<table>
 					<tbody>
-						<tr className="pr-tr-title">
+						{/* <tr className="pr-tr-title">
 							<td colSpan="2" className="pr-sub-title">{primaryFeaturesTitle}</td>
-						</tr>
-
+						</tr> */}
 						{ primaryShow && primaryShow.length > 0 &&
 							primaryShow
 						}
+					</tbody>
+				</table>
+			</div>
+			<div className="show-hide-table-mb" ref={showHideEle}>
+				<table>
+					<tbody>
 						<tr className="pr-tr-title">
 						<td colSpan="2" className="pr-sub-title">{secondaryFeaturesTitle}</td>
 						</tr>
@@ -323,7 +344,7 @@ const filterAllowRow = (listFilter, listPackageFeatureValues, listPricingPackage
 		const listValPricing = []
 		if(featureObj.itemID) {
 			const listVal = listPackageFeatureValues.filter(val => {
-				return val.customFields.packageFeature.contentid === featureObj.itemID
+				return val.customFields.packageFeature?.contentid === featureObj?.itemID
 			})
 			for(let i = 0; i < listPricingPackages.length; i++) {
 				const orderByPricing = listVal.find(el => el.customFields.pricingPackage.contentid === listPricingPackages[i].itemID) || 'none'
@@ -344,14 +365,14 @@ const filterAllowColumn = (listFilterPrimary, listFilterMore, listPackageFeature
 		const listPrimary = listFilterPrimary.map(fil => {
 			const filObj = Object.assign({}, fil)
 			filObj.featureVal = listPackageFeatureValues.find(fe => {
-				return fe.customFields.packageFeature.contentid === filObj.itemID && fe.customFields.pricingPackage.contentid === itemID
+				return fe.customFields.packageFeature?.contentid === filObj.itemID && fe.customFields.pricingPackage.contentid === itemID
 			})
 			return filObj
 		})
 		const listMore = listFilterMore.map(fil => {
 			const filObj = Object.assign({}, fil)
 			filObj.featureVal = listPackageFeatureValues.find(fe => {
-				return fe.customFields.packageFeature.contentid === filObj.itemID && fe.customFields.pricingPackage.contentid === itemID
+				return fe.customFields.packageFeature?.contentid === filObj.itemID && fe.customFields.pricingPackage.contentid === itemID
 			})
 			return filObj
 		})
@@ -665,3 +686,5 @@ class PricingPackagesModule2 extends React.Component {
 		);
 	}
 }
+
+export default ModuleWithQuery
