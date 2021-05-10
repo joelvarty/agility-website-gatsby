@@ -3,8 +3,8 @@
 // }
 
 .main-content {
-  padding-top: 90px;
-  transition: padding .25s;
+  // padding-top: 69px;
+  // transition: padding .25s, transform .25s;
   > .mod-banner:first-child:not(.mod-intro) {
     margin-top: 20px;
   }
@@ -46,7 +46,7 @@
 //   @extend %parent-link-inhert;
 // }
 html.hide-loader {
-  min-height: 100vh; 
+  min-height: 100vh;
   background-color: $color-e3;
 }
 .bg {
@@ -211,22 +211,27 @@ img {
 
 form  button[type='submit'] {
   transition: all .35s;
+  &.btn {
+    // padding-right: 35px !important;
+  }
   &::after {
-    display: none;
+    // display: none !important;
+    // content: none;
+    margin-left: 8px;
   }
   span {
     margin-bottom: 0;
     display: inline-block;
     position: relative;
-    &::after {
-      content: '\e906';
-      font-family: 'icomoon';
-      position: absolute;
-      top: 5px;
-      right: -16px;
-      font-size: 11px;
-      font-weight: normal;
-    }
+    // &::after {
+    //   content: '\e906';
+    //   font-family: 'icomoon';
+    //   position: absolute;
+    //   top: 2px;
+    //   right: -16px;
+    //   font-size: 11px;
+    //   font-weight: normal;
+    // }
   }
 }
 .blog-item-container .blog-item .btn {
@@ -261,7 +266,7 @@ form  button[type='submit'] {
   position: relative;
   // background-image: linear-gradient(to bottom, #f6fbff, #e9f0f5);
   background-color: $color-e3;
-  transition: all .35s;
+  transition: all .35s, opacity 0s;
   overflow: hidden;
   min-height: 48px;
   &.hidden-mess {
@@ -269,7 +274,7 @@ form  button[type='submit'] {
     max-height: 0;
   }
   .container {
-    padding: 10px 60px;
+    padding: 11px 60px 9px;
   }
   p {
     font-size: rem(16);
@@ -356,7 +361,8 @@ input {
     padding: 0 7px;
     border: 2px solid transparent;
     color: $color-4c;
-    font-family: $mlBold;
+    // font-family: $mlBold;
+    font-weight: $fw-bold;
     position: relative;
     cursor: pointer;
     transition: all .35s;
@@ -401,11 +407,21 @@ input {
 .opacity-0 {
   opacity: 0;
 }
-@include media-breakpoint-up(sm) {
-  .main-content {
-    padding-top: 105px;
-  }
+.overflow-hidden {
+  overflow: hidden;
 }
+.transition-25 {
+  transition: all .25s;
+}
+.font-bold {
+  // font-family: $mlBold, sans-serif;
+  font-weight: $fw-bold;
+}
+// @include media-breakpoint-up(sm) {
+//   .main-content {
+//     padding-top: 105px;
+//   }
+// }
 
 @include media-breakpoint-up(md) {
   .wrap-video {
@@ -422,7 +438,8 @@ input {
 
 @include media-breakpoint-up(lg) {
   .main-content {
-    padding-top: 135px;
+    // padding-top: 135px;
+    // padding-top: 95px;
     > .mod-banner:first-child:not(.mod-intro) {
       margin-top: 40px;
     }

@@ -1,5 +1,5 @@
 import { Link } from 'gatsby';
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect, useRef } from 'react';
 import Slider from 'react-slick';
 import Lazyload from 'react-lazyload'
 import LazyBackground from '../utils/LazyBackground'
@@ -8,6 +8,8 @@ import StringUtils from '../utils/string-utils'
 import './CaseStudyRotator.scss';
 import Spacing from './Spacing'
 import Helpers from '../global/javascript/Helpers'
+import ResponsiveImage from '../components/responsive-image';
+import { animationElementInnerComponent } from '../global/javascript/animation'
 
 const CaseStudyRotator = ({ item }) => {
   const [nav1, setNav1] = useState();
@@ -23,7 +25,7 @@ const CaseStudyRotator = ({ item }) => {
     const postUrl = '/resources/case-studies/' + customField.uRL
     return (
       <div className="item-casetudy text-white" key={caseStudy.contentID}>
-        <LazyBackground className="bg-casestudi bg bg-center d-flex align-items-center" src={caseStudy.customFields.image.url} >  {/* style={{ backgroundImage: `url('${caseStudy.customFields.image.url}')` }} */}
+        <LazyBackground className="bg-casestudi bg bg-center d-flex align-items-center" src={caseStudy.customFields.image.url + '?w=800&q=60'} >  {/* style={{ backgroundImage: `url('${caseStudy.customFields.image.url}')` }} */}
           <div className="content-case last-mb-none h3-big ps-rv">
             { titleCaseStudy &&
               <h3>{titleCaseStudy}</h3>
@@ -47,7 +49,10 @@ const CaseStudyRotator = ({ item }) => {
     if (customField.customerLogo.url) {
       return (
         <div className="item-logo-feature d-inline-flex align-items-center justify-content-center" key={'logo-' + caseStudy.contentID}>
-          <Lazyload offset={ Helpers.lazyOffset }><img src={customField.customerLogo.url} alt={customField.customerLogo.label}></img></Lazyload>
+          <Lazyload offset={ Helpers.lazyOffset }>
+			  {/* <img src={customField.customerLogo.url} alt={customField.customerLogo.label}></img> */}
+			  <ResponsiveImage img={customField.customerLogo} />
+			</Lazyload>
         </div>
       )
     }
@@ -88,9 +93,25 @@ const CaseStudyRotator = ({ item }) => {
       }
     }]
   };
+
+  const thisModuleRef = useRef(null)
+	/* animation module */
+	useEffect(() => {
+		const scrollEventFunc = () => {
+			animationElementInnerComponent(thisModuleRef.current)
+		}
+		animationElementInnerComponent(thisModuleRef.current)
+		window.addEventListener('scroll', scrollEventFunc)
+
+		return () => {
+			window.removeEventListener('scroll', scrollEventFunc)
+		}
+	}, [])
+
+
 	return (
     <React.Fragment>
-    <section className={classSection}>
+    <section className={classSection} ref={ thisModuleRef }>
       { title &&
         <div className="container">
           <div className="title-f-casestudy text-center last-mb-none anima-bottom">

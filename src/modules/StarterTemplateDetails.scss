@@ -61,7 +61,8 @@
 			h3,
 			h4,
 			h5 {
-				font-weight: bold;
+				// font-weight: bold;
+				font-weight: $fw-bold;
 			}
 			ol,
 			ul {
@@ -105,7 +106,8 @@
 
 		span {
 			font-size: 16px;
-			font-family: "Muli-Bold", sans-serif;
+			// font-family: "Muli-Bold", sans-serif;
+		  font-weight: $fw-bold;
 			color: #484b4d;
 		}
 
@@ -125,14 +127,15 @@
 	font-size: rem(13);
 	line-height: 2;
 	letter-spacing: 0.65px;
-	font-family: $mlBold;
+	// font-family: $mlBold;
+	font-weight: $fw-bold;
 	position: relative;
 	text-transform: uppercase;
 	padding-left: 12px;
 	&::before {
 		content: '\E906';
 		font-family: $icomoon;
-		@include position(absolute,$top: -4px,$left: -2px);
+		@include position(absolute,$top: -7px,$left: -2px);
 		color: inherit;
 		transform: rotate(180deg);
     font-size: 11px;
@@ -296,7 +299,7 @@
 	.black-starters {
 		&::after {
 			content: '';
-			@include position(absolute,null,null,-4px,12px,0);
+			@include position(absolute,null,null,-6px,12px,0);
 			height: 2px;
 			background-color: $color-58;
 			transition: all .35s;

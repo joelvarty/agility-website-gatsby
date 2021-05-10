@@ -1,5 +1,4 @@
 import React from 'react';
-import { hot } from 'react-hot-loader/root'
 import PostUtil from '../utils/post-util.js';
 import { renderHTML } from '../agility/utils'
 
@@ -19,17 +18,17 @@ class Form extends React.Component {
 		this.validate = this.validate.bind(this);
 		this.submitHandler = this.submitHandler.bind(this);
 		this.submitData = this.submitData.bind(this);
-
 		this._renderErrorMessage = this._renderErrorMessage.bind(this);
 		this._renderForm = this._renderForm.bind(this);
 		this._renderInvalidMessage = this._renderInvalidMessage.bind(this);
 		this._renderSuccessMessage = this._renderSuccessMessage.bind(this);
 
-
-
 	}
 
-
+	componentDidMount() {
+		this.focus()
+		this.checkValue()
+	}
 	/**
 	 * Them main function that validates the form and fills in the error messages.
 	 * @returns bool Returns a boolean showing if the form is valid for submission or not.
@@ -109,8 +108,10 @@ class Form extends React.Component {
 							errorLabel.textContent = elem.validationMessage;
 						}
 						invalidElements.push(elem);
+						errorLabel.parentElement.classList.add('status-invalid')
 					} else {
 						errorLabel.textContent = "";
+						errorLabel.parentElement.classList.remove('status-invalid')
 					}
 				}
 			}
@@ -135,7 +136,51 @@ class Form extends React.Component {
 			return true;
 		}
 	};
-
+	checkFocus(){
+		const form = document.querySelector('.form-container form')
+		if (form !== null) {
+			const input = form.querySelectorAll('input,textarea')
+			Array.from(input).forEach((item,index) => {
+				item.parentElement.classList.remove('status-focus')
+			})
+		}
+	}
+	checkValue(){
+		const form = document.querySelector('.form-container form')
+		if (form !== null) {
+			const input = form.querySelectorAll('input,textarea')
+			Array.from(input).forEach((item,index) => {
+				if(item.value  === '') {
+					item.parentElement.classList.remove('status-active')
+				} else {
+					item.parentElement.classList.add('status-active')
+				}
+			})
+		}
+	}
+	focus() {
+		const form = document.querySelector('.form-container form')
+		if (form !== null) {
+			const input = form.querySelectorAll('input,textarea')
+			Array.from(input).forEach((item,index) => {
+				item.addEventListener('focus', (event) => {
+					this.checkFocus()
+					this.checkValue()
+					item.parentElement.classList.add('status-focus')
+				});
+				item.addEventListener('keydown', (event) => {
+					this.checkValue()
+				});
+			})
+		}
+		document.addEventListener('click', (event) =>  {
+			let $target = event.target
+			if(!$target.closest('.form-item')) {
+				this.checkFocus()
+				this.checkValue()
+			}
+		});
+	};
 	/**
 	* This is the method that is called on form submit.
 	* It stops the default form submission process and proceeds with custom validation.
@@ -188,30 +233,50 @@ class Form extends React.Component {
 
 		this.setState({ isSubmitting: true });
 
-
 		PostUtil.postData(
 			this.props.postURL,
 			data
 		).then(response => {
 
+			const email = data.email
 			//and response in the 200s is ok
 			if (response.status < 200 && response.status > 299) {
 				this.setState({ isError: true, isSubmitting: false, isSuccess: false, isInvalid: false });
 				return;
 			}
 
+			//MOD JOELV - APRIL 2021 - Associate the email to Active Campaign...
+			try {
 
-			//redirect if a redirect url has been set...
+				const vgoAlias = typeof window.visitorGlobalObjectAlias === 'undefined' ? 'vgo' : window.visitorGlobalObjectAlias;
+				var visitorObject = window[vgoAlias];
+				if (email && typeof visitorObject !== 'undefined') {
+					if (console) console.log("setting active campaign user to ", email)
+					visitorObject('setEmail', email);
+					visitorObject('update');
+				} else {
+					if (console) console.log("could not set active campaign user", email, visitorObject)
+				}
+
+			} catch (error) {
+				if (console) console.log("Error sending Email to Active Campaign", error)
+			}
+
+
+			// redirect if a redirect url has been set...
 			if (this.props.redirectURL !== undefined
 				&& this.props.redirectURL
 				&& this.props.redirectURL.href) {
-				window.location.href = this.props.redirectURL.href;
+					const redirectUrl =  this.props.redirectURL.href
+					setTimeout(function() {
+						window.location.href = redirectUrl;
+					}, 500)
+
 				return;
 			};
 
 			//otherwise, just set the state to success
 			this.setState({ isError: false, isSubmitting: false, isSuccess: true, isInvalid: false });
-
 		}).catch(err => {
 			this.setState({ isError: true, isSubmitting: false, isSuccess: false, isInvalid: false });
 		});
@@ -238,19 +303,18 @@ class Form extends React.Component {
 		return (
 			<div className="form-success">
 				<div dangerouslySetInnerHTML={ renderHTML(this.props.thanksMessage)} />
-
 			</div>
 		);
 	}
 
 	_renderInvalidMessage() {
-		let msg = this.props.validationMessage;
-		if (!msg) msg = "Please check your values and try again.";
-		return (
-			<div className={"alert"} role="alert">
-				<div dangerouslySetInnerHTML={ renderHTML( msg) } />
-			</div>
-		);
+		// let msg = this.props.validationMessage;
+		// if (!msg) msg = "Please check your values and try again.";
+		// return (
+		// 	<div className={"alert"} role="alert">
+		// 		<div dangerouslySetInnerHTML={ renderHTML( msg) } />
+		// 	</div>
+		// );
 	}
 
 	_renderErrorMessage() {
@@ -292,10 +356,12 @@ class Form extends React.Component {
 		}
 
 		let btnClass = props.btnStyles + (this.state.isSubmitting ? " submitting" : "");
-		let submitMsg = this.state.isSubmitting ? "Submitting" : "Submit";
+		// let submitMsg = this.state.isSubmitting ? "Send Message" : "Send Message";
+		// let submitMsg = "Send Message";
+		let submitMsg = this.props.submitButtonLabel ?? "Send Message";
 		if (this.state.isSubmitting) {
 			btnClass += " submitting";
-			classNames.push("submitting");
+			classNames.push(" submitting");
 		}
 
 		const createSubmissionCopyMarkup = () => {
@@ -333,7 +399,6 @@ class Form extends React.Component {
 	render() {
 
 
-
 		//ensure we have what we need
 		if (!this.props.postURL || this.props.postURL === "") {
 			return (
@@ -345,10 +410,9 @@ class Form extends React.Component {
 		if (this.state.isSuccess) {
 			return this._renderSuccessMessage();
 		} else {
-
 			return this._renderForm(this.props);
 		}
 	}
 }
 
-export default hot(Form);
+export default Form;

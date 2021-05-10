@@ -13,6 +13,9 @@
     .btn-menu {
       display: none;
     }
+    .btn-menu-v2 {
+      display: block;
+    }
     .btn-pin {
       display: block;
     }
@@ -22,7 +25,13 @@
 .header-logo {
   max-width: 158px;
 }
-
+.ie {
+  .header-logo {
+    img {
+      height: 100%;
+    }
+  }
+}
 @media (min-width: 992px) {
   .header {
     padding: 0;

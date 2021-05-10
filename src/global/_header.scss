@@ -1,6 +1,6 @@
 @import '../global/setting';
 .header {
-  @include position(fixed, 0, 0, null, 0, 9999);
+  @include position(relative, 0, 0, null, 0, 9999);
   @extend %add-tr;
   background-color: $white;
   transition: all .25s;
@@ -11,7 +11,11 @@
   .btn-pin {
     display: none;
   }
+  &.pos-fixed {
+    position: fixed;
+  }
   &.pin-header {
+    position: fixed;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .11);
     // background-color: rgba(255,255,255,.95);
     .main-menu {
@@ -19,6 +23,9 @@
     }
     .btn-menu {
       display: none;
+    }
+    .btn-menu-v2 {
+      display: block;
     }
     .btn-pin {
       display: block;
@@ -31,7 +38,13 @@
 // .unpin-header {
 //   animation: opacity .25s;
 // }
-
+.ie {
+  .header-logo {
+    img {
+      height: 100%;
+    }
+  }
+}
 .header-logo {
   max-width: 158px;
 }
@@ -85,7 +98,8 @@
   }
   .bind-text {
     font-size: 16px;
-    font-family: $mlBold;
+    // font-family: $mlBold;
+    font-weight: $fw-bold;
     color: transparent;
     max-height: 2px;
     overflow: hidden;
@@ -108,7 +122,8 @@
     outline: none;
     color: #5800d4;
     font-size: 16px;
-    font-family: $mlBold;
+    // font-family: $mlBold;
+    font-weight: $fw-bold;
     border-radius: 0;
     &::placeholder {
       color: #5800d4;
@@ -282,6 +297,7 @@
     max-width: 180px;
     img {
       min-width: 180px;
+      height: 46px;
     }
   }
   .navbar-expand-lg {
@@ -300,6 +316,11 @@
   }
   .navbar-nav{
     display: flex;
+  }
+  .box-search-header {
+    .btn-menu:not(.btn-menu-v2){
+      order: 5;
+    }
   }
 }
 @media (max-width: 991px) {
